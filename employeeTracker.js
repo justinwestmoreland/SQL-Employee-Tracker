@@ -14,68 +14,142 @@ const start = () => {
         .prompt({
             name: 'welcome',
             type: 'list',
-            message: 'Employee A, Employee B, Employee C, EXIT',
-            choices: ['Employee A', 'Employee B', 'Employee C', 'EXIT'],
+            message: 'What would you like to do?',
+            choices: [
+                'View All Employees',
+                'View Roles',
+                'View Departments',
+                'Add Employee',
+                'Add Role',
+                'Add Department',
+                'EXIT'
+            ],
         })
         .then((answer) => {
             // based on their answer, either call the bid or the post functions
-            if (answer.welcome === 'Employee A') {
-                console.log('Employee A');;
-            } else if (answer.postOrBid === 'Employee B') {
-                console.log('Employee B');;
-            } else if (answer.postOrBid === 'Employee C') {
-                console.log('Employee C');;
+            if (answer.welcome === 'View All Employees') {
+                viewEmployees();
+            } else if (answer.welcome === 'View Roles') {
+                viewRoles();
+            } else if (answer.welcome === 'View Departments') {
+                viewDepartments();
+            } else if (answer.welcome === 'Add Employee') {
+                addEmployee();
+            } else if (answer.welcome === 'Add Role') {
+                addRole();
+            } else if (answer.welcome === 'Add Department') {
+                addDepartment();
             } else {
                 connection.end();
             }
         });
 };
 
-// const postAuction = () => {
-//     // prompt for info about the item being put up for auction
-//     inquirer
-//         .prompt([{
-//                 name: 'item',
-//                 type: 'input',
-//                 message: 'What is the item you would like to submit?',
-//             },
-//             {
-//                 name: 'category',
-//                 type: 'input',
-//                 message: 'What category would you like to place your auction in?',
-//             },
-//             {
-//                 name: 'startingBid',
-//                 type: 'input',
-//                 message: 'What would you like your starting bid to be?',
-//                 validate(value) {
-//                     if (isNaN(value) === false) {
-//                         return true;
-//                     }
-//                     return false;
-//                 },
-//             },
-//         ])
-//         .then((answer) => {
-//             // when finished prompting, insert a new item into the db with that info
-//             connection.query(
-//                 'INSERT INTO auctions SET ?',
-//                 // QUESTION: What does the || 0 do?
-//                 {
-//                     item_name: answer.item,
-//                     category: answer.category,
-//                     starting_bid: answer.startingBid || 0,
-//                     highest_bid: answer.startingBid || 0,
-//                 },
-//                 (err) => {
-//                     if (err) throw err;
-//                     console.log('Your auction was created successfully!');
-//                     // re-prompt the user for if they want to bid or post
-//                     start();
-//                 }
-//             );
-//         });
-// };
+const viewEmployees = () => {
+    connection.query('SELECT * FROM employee', (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        start();
+    });
+}
+
+const viewRoles = () => {
+    connection.query('SELECT * FROM role', (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        start();
+    });
+}
+
+const viewDepartments = () => {
+    connection.query('SELECT * FROM department', (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        start();
+    });
+}
+
+const addEmployee = () => {
+    inquirer
+        .prompt([{
+                name: 'firstName',
+                type: 'input',
+                message: 'Employee First Name?',
+            },
+            {
+                name: 'lastName',
+                type: 'input',
+                message: 'Employee Last Name',
+            },
+        ])
+        .then((answer) => {
+            connection.query(
+                'INSERT INTO employee SET ?', {
+                    first_name: answer.firstName,
+                    last_name: answer.lastName,
+                },
+
+                (err) => {
+                    if (err) throw err;
+                    console.log('Your Employee has been successfully entered!');
+                    start();
+                }
+            );
+        });
+};
+
+const addRole = () => {
+    inquirer
+        .prompt([{
+                name: 'title',
+                type: 'input',
+                message: 'Job Title',
+            },
+            {
+                name: 'salary',
+                type: 'input',
+                message: 'Job Salary',
+            },
+        ])
+        .then((answer) => {
+            connection.query(
+                'INSERT INTO role SET ?', {
+                    title: answer.title,
+                    salary: answer.salary,
+                },
+
+                (err) => {
+                    if (err) throw err;
+                    console.log('Your Role has been successfully entered!');
+                    start();
+                }
+            );
+        });
+};
+
+const addDepartment = () => {
+    inquirer
+        .prompt([{
+            name: 'department',
+            type: 'input',
+            message: 'Name of Department?',
+        }, ])
+        .then((answer) => {
+            connection.query(
+                'INSERT INTO department SET ?', {
+                    name: answer.department,
+                },
+
+                (err) => {
+                    if (err) throw err;
+                    console.log('Your Department has been successfully entered!');
+                    start();
+                }
+            );
+        });
+};
+
+
 
 // const bidAuction = () => {
 //     // query the database for all items being auctioned
